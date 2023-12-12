@@ -41,7 +41,7 @@ int matriz_adjacencia(int tamanho, int **grafo, int **adjacencia, bool digrafo){
     return arestas;
 }
 
-void get_matriz_incidencia(int tamanho,int num_aresta, int **grafo, int**matriz_incidencia, bool digrafo){
+void get_matriz_incidencia(int tamanho,int num_aresta, int **grafo, int**matriz_incidencia,vector<vector<int>> &lista_adjacencia, bool digrafo){
     int coluna_insercao = 0;
     if(!digrafo){
         int coluna = 1;
@@ -49,17 +49,21 @@ void get_matriz_incidencia(int tamanho,int num_aresta, int **grafo, int**matriz_
             for(int j = coluna; j < tamanho; j++ ){
                 if(grafo[i][j] != 0 && grafo[i][j] != 999 ){
                     matriz_incidencia[i][coluna_insercao] = matriz_incidencia[j][coluna_insercao] = 1;
+                    lista_adjacencia[i].push_back(j);
+                    lista_adjacencia[j].push_back(i);
                     coluna_insercao++;
                 } 
             }
             coluna++;
         } 
     } else {
+        
         for(int i = 0; i < tamanho; i++){
             for(int j = 0; j < tamanho; j++){
                 if(grafo[i][j] != 0 && grafo[i][j] != 999){
                     matriz_incidencia[i][coluna_insercao] = 1;
                     matriz_incidencia[j][coluna_insercao] = -1;
+                    lista_adjacencia[i].push_back(j);
                     coluna_insercao++;
                 }
             }
@@ -112,7 +116,7 @@ int main() {
     }
 
     zera_matriz(adjacencia,tamanho_grafo,tamanho_grafo);
-    int num_aresta = matriz_adjacencia(tamanho_grafo,matriz,adjacencia,true);
+    int num_aresta = matriz_adjacencia(tamanho_grafo,matriz,adjacencia,false);
 
     int **matriz_incidencia = new int*[tamanho_grafo];
     for(int i = 0; i < num_aresta; i++){
@@ -120,11 +124,19 @@ int main() {
     }
     
     zera_matriz(matriz_incidencia,tamanho_grafo,num_aresta);
-    get_matriz_incidencia(tamanho_grafo,num_aresta, matriz,matriz_incidencia, true);
+    vector<vector<int>> lista_adjacencia(tamanho_grafo);
+    get_matriz_incidencia(tamanho_grafo,num_aresta, matriz,matriz_incidencia,lista_adjacencia ,false);
 
-    for (int i = 0; i< tamanho_grafo; i++){
-        for(int j = 0; j < num_aresta; j++){
-            cout << matriz_incidencia[i][j] << " ";
+    // for (int i = 0; i< tamanho_grafo; i++){
+    //     for(int j = 0; j < num_aresta; j++){
+    //         cout << matriz_incidencia[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+    for(int i = 0; i < lista_adjacencia.size(); i++){
+        for(int j = 0; j < lista_adjacencia[i].size(); j++){
+            cout << lista_adjacencia[i][j] << " ";
         }
         cout << endl;
     }
