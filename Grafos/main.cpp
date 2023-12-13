@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -71,6 +72,61 @@ void get_matriz_incidencia(int tamanho,int num_aresta, int **grafo, int**matriz_
     }
 }
 
+void busca_largura(int **matriz_adjacencia, int numNo, int no_comeco){
+    // Vetor para marcar os nós visitados
+    bool* visited = new bool[numNo]();  // Inicializado com false
+
+    // Fila para armazenar os nós a serem visitados
+    std::queue<int> q;
+
+    // Marca o nó inicial como visitado e o adiciona à fila
+    visited[no_comeco] = true;
+    q.push(no_comeco);
+
+    while (!q.empty()) {
+        // Obtém o nó da frente da fila
+        int currentNode = q.front();
+        std::cout << currentNode << " ";
+
+        // Remove o nó da frente da fila
+        q.pop();
+        for (int neighbor = 0; neighbor < numNo; ++neighbor) {
+            if (matriz_adjacencia[currentNode][neighbor] == 1 && !visited[neighbor]) {
+                // Marca o vizinho como visitado e o adiciona à fila
+                visited[neighbor] = true;
+                q.push(neighbor);
+            }
+        }
+    }
+
+    delete[] visited;
+
+}
+
+void busca_profundidade(int** matriz_adjacencia, bool* visitado, int numNo, int no_atual) {
+    // Marca o nó atual como visitado
+    visitado[no_atual] = true;
+    cout << no_atual << " ";
+
+    // Percorre os vizinhos do nó atual
+    for (int visinho = 0; visinho < numNo; ++visinho) {
+        if (matriz_adjacencia[no_atual][visinho] == 1 && !visitado[visinho]) {
+            // Chama a DFS recursivamente para o vizinho não visitado
+            busca_profundidade(matriz_adjacencia, visitado, numNo, visinho);
+        }
+    }
+}
+
+void busca_profundidade_aux(int** matriz_adjacencia, int numNo, int no_comeco) {
+    // Vetor para marcar os nós visitados
+    bool* visitado = new bool[numNo]();  // Inicializado com false
+
+    cout << "Busca em largura iniciado pelo no " << no_comeco << ": ";
+    busca_profundidade(matriz_adjacencia, visitado, numNo, no_comeco);
+
+    delete[] visitado;
+}
+
 int main() {
     
     ifstream arquivo_entrada;
@@ -118,7 +174,11 @@ int main() {
     zera_matriz(adjacencia,tamanho_grafo,tamanho_grafo);
     int num_aresta = matriz_adjacencia(tamanho_grafo,matriz,adjacencia,false);
 
-    int **matriz_incidencia = new int*[tamanho_grafo];
+    busca_largura(adjacencia,tamanho_grafo,0);
+
+    //busca_profundidade_aux(adjacencia,tamanho_grafo,0);
+
+    /*int **matriz_incidencia = new int*[tamanho_grafo];
     for(int i = 0; i < num_aresta; i++){
         matriz_incidencia[i] = new int[num_aresta];
     }
@@ -140,6 +200,6 @@ int main() {
         }
         cout << endl;
     }
-    cout << "Numero de arestas do grafo: " << num_aresta << endl;
+    cout << "Numero de arestas do grafo: " << num_aresta << endl;*/
     return 0;
 } 
