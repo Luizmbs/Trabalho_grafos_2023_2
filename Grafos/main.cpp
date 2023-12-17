@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 #include <queue>
+#include <algorithm>
+
 
 using namespace std;
 
@@ -21,7 +23,7 @@ int matriz_adjacencia(int tamanho, int **grafo, int **adjacencia, bool digrafo){
         for(int i = 0; i < tamanho-1; i++){
             for(int j = coluna; j < tamanho; j++ ){
                 if(grafo[i][j] != 0 && grafo[i][j] != 999 ){
-                    adjacencia[i][j] = adjacencia[j][i] = 1;
+                    adjacencia[i][j] = adjacencia[j][i] = grafo[i][j];
                     arestas++;
                 } 
             }
@@ -127,6 +129,61 @@ void busca_profundidade_aux(int** matriz_adjacencia, int numNo, int no_comeco) {
     delete[] visitado;
 }
 
+
+
+struct Aresta {
+    int origem;
+    int destino;
+    int peso;
+
+    Aresta(int ori, int dest, int p) : origem(ori), destino(dest), peso(p) {}
+};
+
+struct CompareEdges {
+    bool operator()(const Aresta& a, const Aresta& b) const {
+        return a.peso > b.peso; // Min heap, menor peso tem maior prioridade
+    }
+};
+
+void prim(int** adjacencia, int numNo) {
+    int peso_arvore = 0;
+    vector<bool> na_arvore(numNo, false);
+    priority_queue<Aresta, std::vector<Aresta>, CompareEdges> pq;
+
+    // Inclui o primeiro nó na árvore
+    na_arvore[0] = true;
+
+    // Adiciona as arestas do primeiro nó à fila de prioridade
+    for (int vizinho = 0; vizinho < numNo; ++vizinho) {
+        if (adjacencia[0][vizinho] != 0) {
+            pq.push(Aresta(0, vizinho, adjacencia[0][vizinho]));
+        }
+    }
+
+    cout << "Arestas da Árvore Geradora Mínima (Prim):\n";
+
+    while (!pq.empty()) {
+        Aresta no_atual = pq.top();
+        pq.pop();
+
+        if (na_arvore[no_atual.origem] && !na_arvore[no_atual.destino]) {
+            // Aresta faz parte da árvore mínima
+            cout << "Aresta: " << no_atual.origem << " - " << no_atual.destino << " Peso: " << no_atual.peso << endl;
+            peso_arvore += no_atual.peso;
+            na_arvore[no_atual.destino] = true;
+
+            // Adiciona as arestas do nó recém-incluído à fila de prioridade
+            for (int vizinho = 0; vizinho < numNo; ++vizinho) {
+                if (adjacencia[no_atual.destino][vizinho] != 0 && !na_arvore[vizinho]) {
+                    pq.push(Aresta(no_atual.destino, vizinho, adjacencia[no_atual.destino][vizinho]));
+                }
+            }
+        }
+    }
+    cout << "Peso total da arvore: " << peso_arvore << endl; 
+}
+
+
 int main() {
     
     ifstream arquivo_entrada;
@@ -174,7 +231,8 @@ int main() {
     zera_matriz(adjacencia,tamanho_grafo,tamanho_grafo);
     int num_aresta = matriz_adjacencia(tamanho_grafo,matriz,adjacencia,false);
 
-    busca_largura(adjacencia,tamanho_grafo,0);
+    prim(adjacencia,tamanho_grafo);
+    //busca_largura(adjacencia,tamanho_grafo,0);
 
     //busca_profundidade_aux(adjacencia,tamanho_grafo,0);
 
